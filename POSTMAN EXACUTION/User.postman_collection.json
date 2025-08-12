@@ -1,0 +1,630 @@
+{
+	"info": {
+		"_postman_id": "36b8fd90-4baa-48e8-b81d-95ed6a029e5b",
+		"name": "User",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "15088754",
+		"_collection_link": "https://www.postman.com/spaceflight-geologist-74889680/workspace/gorestapi/collection/15088754-36b8fd90-4baa-48e8-b81d-95ed6a029e5b?action=share&source=collection_link&creator=15088754"
+	},
+	"item": [
+		{
+			"name": "CreatUserWithvalid data",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 201\", function () {\r",
+							"    pm.response.to.have.status(201);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Response contains expected fields and values\", function () {\r",
+							"    const jsonData = pm.response.json();\r",
+							"\r",
+							"    pm.expect(jsonData).to.have.property(\"name\", \"Souad Elsayed\");\r",
+							"    pm.expect(jsonData).to.have.property(\"gender\", \"female\");\r",
+							"    pm.expect(jsonData).to.have.property(\"status\", \"active\");\r",
+							"\r",
+							"    // Instead of fixed email, check format or part of it\r",
+							"    pm.expect(jsonData.email).to.include(\"@gmail.com\");\r",
+							"});\r",
+							"\r",
+							"\r",
+							"let jsonData = pm.response.json();\r",
+							"pm.environment.set(\"userId\", jsonData.id);\r",
+							"\r",
+							"pm.environment.set(\"name\", jsonData.name);\r",
+							"\r",
+							"\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{vault:authorization-secret}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{vault:bearer-token}}",
+						"type": "text"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"name\": \"Souad Elsayed\",\r\n    \"email\": \"test923694@gmail.com\",\r\n    \"gender\": \"female\",\r\n    \"status\": \"active\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{Baseurl}}/users/",
+					"host": [
+						"{{Baseurl}}"
+					],
+					"path": [
+						"users",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "CreatUserWithEmptyName",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(422);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Validation errors contain name blank and email already taken\", function () {\r",
+							"    const jsonData = pm.response.json();\r",
+							"\r",
+							"    // Find error for 'name'\r",
+							"    const nameError = jsonData.find(e => e.field === \"name\");\r",
+							"    pm.expect(nameError).to.not.be.undefined;\r",
+							"    pm.expect(nameError.message).to.eql(\"can't be blank\");\r",
+							"\r",
+							"    \r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"name\": \"\",\r\n    \"email\": \"new_unique4_email@gmail.com\",\r\n    \"gender\": \"female\",\r\n    \"status\": \"active\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{Baseurl}}/users/",
+					"host": [
+						"{{Baseurl}}"
+					],
+					"path": [
+						"users",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "CreatUserWithExistMail",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(422);\r",
+							"});\r",
+							"\r",
+							"\r",
+							"pm.test(\"Email already taken error is returned\", function () {\r",
+							"    let jsonData = pm.response.json();\r",
+							"\r",
+							"    pm.expect(jsonData).to.be.an(\"array\").that.is.not.empty;\r",
+							"    \r",
+							"    let emailError = jsonData.find(err => err.field === \"email\");\r",
+							"\r",
+							"    pm.expect(emailError).to.not.be.undefined;\r",
+							"    pm.expect(emailError.message).to.eql(\"has already been taken\");\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"name\": \"Ahmed Elsayed\",\r\n    \"email\": \"new_unique3_email@gmail.com\",\r\n    \"gender\": \"male\",\r\n    \"status\": \"active\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{Baseurl}}/users/",
+					"host": [
+						"{{Baseurl}}"
+					],
+					"path": [
+						"users",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GetUserByID",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "{{Baseurl}}/users/?id={{userId}}",
+					"host": [
+						"{{Baseurl}}"
+					],
+					"path": [
+						"users",
+						""
+					],
+					"query": [
+						{
+							"key": "id",
+							"value": "{{userId}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "UpdateUserWithValidData",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"User updated successfully\", function () {\r",
+							"    let jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData.name).to.eql(\"Ahmed Elsayed\");\r",
+							"    pm.expect(jsonData.gender).to.eql(\"male\");\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"name\": \"Ahmed Elsayed\",\r\n    \"email\": \"UPDATE1_email@gmail.com\",\r\n    \"gender\": \"male\",\r\n    \"status\": \"active\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{Baseurl}}/users/{{userId}}",
+					"host": [
+						"{{Baseurl}}"
+					],
+					"path": [
+						"users",
+						"{{userId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "UpdateUserWithINValidData",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Validate required fields errors\", function () {\r",
+							"    let jsonData = pm.response.json();\r",
+							"\r",
+							"    // Expected errors\r",
+							"    let expectedErrors = [\r",
+							"        { field: \"email\", message: \"can't be blank\" },\r",
+							"        { field: \"name\", message: \"can't be blank\" },\r",
+							"        { field: \"gender\", message: \"can't be blank, can be male of female\" },\r",
+							"        { field: \"status\", message: \"can't be blank\" }\r",
+							"    ];\r",
+							"\r",
+							"    // Loop through expected errors and check if they exist in response\r",
+							"    expectedErrors.forEach(expected => {\r",
+							"        let match = jsonData.find(err => err.field === expected.field && err.message === expected.message);\r",
+							"        pm.expect(match, `Error for field '${expected.field}' not found or incorrect`).to.not.be.undefined;\r",
+							"    });\r",
+							"});\r",
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(422);\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{vault:authorization-secret}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"name\": \"\",\r\n    \"email\": \"\",\r\n    \"gender\": \"\",\r\n    \"status\": \"\"\r\n}"
+				},
+				"url": {
+					"raw": "{{Baseurl}}/users/{{userId}}",
+					"host": [
+						"{{Baseurl}}"
+					],
+					"path": [
+						"users",
+						"{{userId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "UpdateUserWithInvalidID",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(404);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Message says 'Resource not found'\", function () {\r",
+							"    let jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData.message).to.eql(\"Resource not found\");\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"name\": \"TEST\",\r\n    \"email\": \"INVALIDid_email@gmail.com\",\r\n    \"gender\": \"male\",\r\n    \"status\": \"active\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{Baseurl}}/users/22",
+					"host": [
+						"{{Baseurl}}"
+					],
+					"path": [
+						"users",
+						"22"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "updateWithInvalidEmailFormat",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Validate email is invalid error\", function () {\r",
+							"    let jsonData = pm.response.json();\r",
+							"    \r",
+							"    pm.expect(jsonData[0].field).to.eql(\"email\");\r",
+							"    pm.expect(jsonData[0].message).to.eql(\"is invalid\");\r",
+							"});\r",
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(422);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "PATCH",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{vault:authorization-secret}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \r\n    \"email\": \"ahmedcom\"\r\n   \r\n}"
+				},
+				"url": {
+					"raw": "{{Baseurl}}/users/{{userId}}",
+					"host": [
+						"{{Baseurl}}"
+					],
+					"path": [
+						"users",
+						"{{userId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "DeletUserByID",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(204);\r",
+							"});\r",
+							"pm.test(\"Delete successful and response body is null\", function () {\r",
+							"    pm.response.to.have.status(204); // No Content expected\r",
+							"    pm.expect(pm.response.text()).to.be.empty; // Body should be empty string\r",
+							"});\r",
+							"\r",
+							"// Alternative check if API returns null literal instead of empty body\r",
+							"pm.test(\"Response body literal is null\", function () {\r",
+							"    let body = pm.response.text().trim();\r",
+							"    pm.expect(body === \"\" || body === \"null\").to.be.true;\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{vault:authorization-secret}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "{{Baseurl}}/users/{{userId}}",
+					"host": [
+						"{{Baseurl}}"
+					],
+					"path": [
+						"users",
+						"{{userId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "DeletUserWinvalidID",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(404);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Message says 'Resource not found'\", function () {\r",
+							"    let jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData.message).to.eql(\"Resource not found\");\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{Baseurl}}/users/22",
+					"host": [
+						"{{Baseurl}}"
+					],
+					"path": [
+						"users",
+						"22"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{vault:authorization-secret}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "userId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "name",
+			"value": "",
+			"type": "string"
+		}
+	]
+}

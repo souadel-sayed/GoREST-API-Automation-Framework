@@ -1,0 +1,900 @@
+{
+	"info": {
+		"_postman_id": "44dbdd8f-2a77-435e-aa84-e31ce18c55bd",
+		"name": "Post",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "15088754",
+		"_collection_link": "https://www.postman.com/spaceflight-geologist-74889680/workspace/gorestapi/collection/15088754-44dbdd8f-2a77-435e-aa84-e31ce18c55bd?action=share&source=collection_link&creator=15088754"
+	},
+	"item": [
+		{
+			"name": "creatNewPost",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Check response status code is 200\r",
+							"pm.test(\"Status code is 200\", function() {\r",
+							"    pm.response.to.have.status(201);\r",
+							"});\r",
+							"\r",
+							"// Verify response has the expected JSON structure\r",
+							"pm.test(\"Response has correct structure\", function() {\r",
+							"    const response = pm.response.json();\r",
+							"    pm.expect(response).to.have.all.keys('id', 'user_id', 'title', 'body');\r",
+							"    pm.expect(response.id).to.be.a('number');\r",
+							"    pm.expect(response.user_id).to.be.a('number');\r",
+							"    pm.expect(response.title).to.be.a('string');\r",
+							"    pm.expect(response.body).to.be.a('string');\r",
+							"});\r",
+							"\r",
+							"\r",
+							"\r",
+							"let jsonData = pm.response.json();\r",
+							"pm.environment.set(\"postId\", jsonData.id);\r",
+							"pm.environment.set(\"title\", jsonData.title);\r",
+							"pm.environment.set(\"userId\", jsonData.user_id);\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "title",
+							"value": "{{title}}",
+							"type": "text"
+						},
+						{
+							"key": "body",
+							"value": "{{body}}",
+							"type": "text"
+						},
+						{
+							"key": "user",
+							"value": "{{user}}",
+							"type": "text"
+						},
+						{
+							"key": "user_id",
+							"value": "{{Userr_id}}",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{Baseurl}}/posts/",
+					"host": [
+						"{{Baseurl}}"
+					],
+					"path": [
+						"posts",
+						""
+					],
+					"query": [
+						{
+							"key": "user_id",
+							"value": "{{Userr_id}}",
+							"disabled": true
+						},
+						{
+							"key": "user",
+							"value": "{{user}}",
+							"disabled": true
+						},
+						{
+							"key": "title",
+							"value": "{{title}}",
+							"disabled": true
+						},
+						{
+							"key": "body",
+							"value": "{{body}}",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Post With invalid data",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Verify status code is a client error (4xx)\r",
+							"pm.test(\"Status code is 4xx\", function() {\r",
+							"    pm.expect(pm.response.code).to.be.oneOf([400, 422]);\r",
+							"});\r",
+							"\r",
+							"// Check the error response structure\r",
+							"pm.test(\"Error response has correct format\", function() {\r",
+							"    const errors = pm.response.json();\r",
+							"    pm.expect(errors).to.be.an('array');\r",
+							"    pm.expect(errors.length).to.be.greaterThan(0);\r",
+							"    \r",
+							"    errors.forEach(error => {\r",
+							"        pm.expect(error).to.have.all.keys('field', 'message');\r",
+							"        pm.expect(error.field).to.be.a('string');\r",
+							"        pm.expect(error.message).to.be.a('string');\r",
+							"    });\r",
+							"});\r",
+							"\r",
+							"// Check for specific validation errors\r",
+							"pm.test(\"Contains title validation error\", function() {\r",
+							"    const errors = pm.response.json();\r",
+							"    const titleError = errors.find(e => e.field === 'title');\r",
+							"    pm.expect(titleError).to.exist;\r",
+							"    pm.expect(titleError.message).to.include(\"can't be blank\");\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Contains body validation error\", function() {\r",
+							"    const errors = pm.response.json();\r",
+							"    const bodyError = errors.find(e => e.field === 'body');\r",
+							"    pm.expect(bodyError).to.exist;\r",
+							"    pm.expect(bodyError.message).to.include(\"can't be blank\");\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "user_id",
+							"value": "{{Userr_id}}",
+							"type": "text"
+						},
+						{
+							"key": "body",
+							"value": "{{invalid_body}}",
+							"type": "text"
+						},
+						{
+							"key": "title",
+							"value": "{{invalid_title}}",
+							"type": "text"
+						},
+						{
+							"key": "user",
+							"value": "{{user}}",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{Baseurl}}/posts/",
+					"host": [
+						"{{Baseurl}}"
+					],
+					"path": [
+						"posts",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "CreatePostWithINExictUser",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Verify status code is a client error (4xx)\r",
+							"pm.test(\"Status code is 422 Unprocessable Entity\", function() {\r",
+							"    pm.response.to.have.status(422);\r",
+							"});\r",
+							"\r",
+							"// Check the error response structure\r",
+							"pm.test(\"Error response has correct format\", function() {\r",
+							"    const errors = pm.response.json();\r",
+							"    pm.expect(errors).to.be.an('array');\r",
+							"    pm.expect(errors[0]).to.have.all.keys('field', 'message');\r",
+							"});\r",
+							"\r",
+							"// Verify specific error for non-existent user\r",
+							"pm.test(\"Contains user existence validation error\", function() {\r",
+							"    const errors = pm.response.json();\r",
+							"    const userError = errors.find(e => e.field === 'user');\r",
+							"    pm.expect(userError).to.exist;\r",
+							"    pm.expect(userError.message).to.eql(\"must exist\");\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "user_id",
+							"value": "{{invalid_id}}",
+							"type": "text"
+						},
+						{
+							"key": "body",
+							"value": "{{body}}",
+							"type": "text"
+						},
+						{
+							"key": "title",
+							"value": "{{title}}",
+							"type": "text"
+						},
+						{
+							"key": "user",
+							"value": "{{user}}",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{Baseurl}}/posts/",
+					"host": [
+						"{{Baseurl}}"
+					],
+					"path": [
+						"posts",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get specific post by id",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Pre-request would set up any needed test data\r",
+							"// Tests:\r",
+							"const post = pm.response.json();\r",
+							"\r",
+							"// Basic validation\r",
+							"pm.test(\"Successful GET response\", function() {\r",
+							"    pm.expect(pm.response.code).to.equal(200);\r",
+							"    pm.expect(post).to.be.an('object');\r",
+							"});\r",
+							"\r",
+							"\r",
+							"\r",
+							"\r",
+							"// Store values for future tests\r",
+							"pm.collectionVariables.set(\"last_retrieved_post\", JSON.stringify(post));\r",
+							"\r",
+							"// Post-test cleanup (would run after all tests)\r",
+							"// pm.sendRequest({\r",
+							"//     url: pm.environment.get(\"api_url\") + '/posts/' + post.id,\r",
+							"//     method: 'DELETE'\r",
+							"// });"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "{{Baseurl}}/posts/{{postId}}",
+					"host": [
+						"{{Baseurl}}"
+					],
+					"path": [
+						"posts",
+						"{{postId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get all post for scpecific user",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Verify status code is 200 OK\r",
+							"pm.test(\"Status code is 200\", function() {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"// Check that response is an array\r",
+							"pm.test(\"Response is an array of posts\", function() {\r",
+							"    const posts = pm.response.json();\r",
+							"    pm.expect(posts).to.be.an('array');\r",
+							"    pm.expect(posts.length).to.be.greaterThan(0);\r",
+							"});\r",
+							"\r",
+							"// Validate each post structure\r",
+							"pm.test(\"All posts have correct structure\", function() {\r",
+							"    const posts = pm.response.json();\r",
+							"    posts.forEach(post => {\r",
+							"        pm.expect(post).to.have.all.keys('id', 'user_id', 'title', 'body');\r",
+							"        pm.expect(post.id).to.be.a('number');\r",
+							"        pm.expect(post.user_id).to.be.a('number');\r",
+							"        pm.expect(post.title).to.be.a('string');\r",
+							"        pm.expect(post.body).to.be.a('string');\r",
+							"    });\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{Baseurl}}/posts/?user_id={{userId}}",
+					"host": [
+						"{{Baseurl}}"
+					],
+					"path": [
+						"posts",
+						""
+					],
+					"query": [
+						{
+							"key": "user_id",
+							"value": "{{userId}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get post by title",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Verify status code is 200 OK\r",
+							"pm.test(\"Status code is 200\", function() {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"// Check that response is an array\r",
+							"pm.test(\"Response is an array of posts\", function() {\r",
+							"    const posts = pm.response.json();\r",
+							"    pm.expect(posts).to.be.an('array');\r",
+							"    pm.expect(posts.length).to.be.greaterThan(0);\r",
+							"});\r",
+							"\r",
+							"// Validate each post structure\r",
+							"pm.test(\"All posts have correct structure\", function() {\r",
+							"    const posts = pm.response.json();\r",
+							"    posts.forEach(post => {\r",
+							"        pm.expect(post).to.have.all.keys('id', 'user_id', 'title', 'body');\r",
+							"        pm.expect(post.id).to.be.a('number');\r",
+							"        pm.expect(post.user_id).to.be.a('number');\r",
+							"        pm.expect(post.title).to.be.a('string');\r",
+							"        pm.expect(post.body).to.be.a('string');\r",
+							"    });\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "{{Baseurl}}/posts/?title={{title}}",
+					"host": [
+						"{{Baseurl}}"
+					],
+					"path": [
+						"posts",
+						""
+					],
+					"query": [
+						{
+							"key": "title",
+							"value": "{{title}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update user with valid data",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Verify status code is successful (200 OK or 204 No Content)\r",
+							"pm.test(\"Status code is 200 OK\", function() {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"// Validate response structure\r",
+							"pm.test(\"Response has correct structure\", function() {\r",
+							"    const response = pm.response.json();\r",
+							"    pm.expect(response).to.be.an('object');\r",
+							"    pm.expect(response).to.have.all.keys('user_id', 'title', 'body', 'id');\r",
+							"});\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "user",
+							"value": "{{user}}",
+							"type": "text"
+						},
+						{
+							"key": "body",
+							"value": "{{body}}",
+							"type": "text"
+						},
+						{
+							"key": "title",
+							"value": "{{update_title}}",
+							"type": "text"
+						},
+						{
+							"key": "user_id",
+							"value": "{{Userr_id}}",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{Baseurl}}/posts/{{postId}}",
+					"host": [
+						"{{Baseurl}}"
+					],
+					"path": [
+						"posts",
+						"{{postId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "update with invalid data",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Verify status code is 422 Unprocessable Entity or 400 Bad Request\r",
+							"pm.test(\"Status code indicates validation error\", function() {\r",
+							"    pm.expect(pm.response.code).to.be.oneOf([400, 422]);\r",
+							"});\r",
+							"\r",
+							"// Check error response structure\r",
+							"pm.test(\"Error response has correct format\", function() {\r",
+							"    const errors = pm.response.json();\r",
+							"    pm.expect(errors).to.be.an('array');\r",
+							"    pm.expect(errors[0]).to.have.all.keys('field', 'message');\r",
+							"});\r",
+							"\r",
+							"// Verify the specific title validation error\r",
+							"pm.test(\"Contains title validation error\", function() {\r",
+							"    const errors = pm.response.json();\r",
+							"    const titleError = errors.find(e => e.field === 'title');\r",
+							"    pm.expect(titleError).to.exist;\r",
+							"    pm.expect(titleError.message).to.equal(\"can't be blank\");\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "user_id",
+							"value": "{{Userr_id}}",
+							"type": "text"
+						},
+						{
+							"key": "body",
+							"value": "{{invalid_body}}",
+							"type": "text"
+						},
+						{
+							"key": "title",
+							"value": "{{invalid_title}}",
+							"type": "text"
+						},
+						{
+							"key": "user",
+							"value": "{{user}}",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{Baseurl}}/posts/{{postId}}",
+					"host": [
+						"{{Baseurl}}"
+					],
+					"path": [
+						"posts",
+						"{{postId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "update with invalid id",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Verify status code is 422 Unprocessable Entity or 404 Not Found\r",
+							"pm.test(\"Status code indicates invalid user reference\", function() {\r",
+							"    pm.expect(pm.response.code).to.be.oneOf([404, 422]);\r",
+							"});\r",
+							"\r",
+							"// Check error response structure\r",
+							"pm.test(\"Error response has correct format\", function() {\r",
+							"    const errors = pm.response.json();\r",
+							"    pm.expect(errors).to.be.an('array');\r",
+							"    pm.expect(errors[0]).to.have.all.keys('field', 'message');\r",
+							"});\r",
+							"\r",
+							"// Verify the specific user validation error\r",
+							"pm.test(\"Contains user existence error\", function() {\r",
+							"    const errors = pm.response.json();\r",
+							"    const userError = errors.find(e => e.field === 'user');\r",
+							"    pm.expect(userError).to.exist;\r",
+							"    pm.expect(userError.message).to.equal(\"must exist\");\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "user",
+							"value": "{{user}}",
+							"type": "text"
+						},
+						{
+							"key": "user_id",
+							"value": "{{invalid_id}}",
+							"type": "text"
+						},
+						{
+							"key": "title",
+							"value": "{{update_title}}",
+							"type": "text"
+						},
+						{
+							"key": "body",
+							"value": "{{body}}",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{Baseurl}}/posts/{{postId}}",
+					"host": [
+						"{{Baseurl}}"
+					],
+					"path": [
+						"posts",
+						"{{postId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "update with single attripute",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Verify status code is 200 OK\r",
+							"pm.test(\"Status code is 200\", function() {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"// Validate response structure\r",
+							"pm.test(\"Response has correct structure\", function() {\r",
+							"    const response = pm.response.json();\r",
+							"    pm.expect(response).to.be.an('object');\r",
+							"    pm.expect(response).to.have.all.keys('id', 'user_id', 'title', 'body');\r",
+							"});\r",
+							"\r",
+							"// Verify only title was updated\r",
+							"pm.test(\"Title was updated successfully\", function() {\r",
+							"    const response = pm.response.json();\r",
+							"    pm.expect(response.title).to.equal(\"update post title\");\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "title",
+							"value": "{{update_title}}",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{Baseurl}}/posts/{{postId}}",
+					"host": [
+						"{{Baseurl}}"
+					],
+					"path": [
+						"posts",
+						"{{postId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "delet with valid id",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"user\":\"Souad Elsayed\",\r\n    \"user_id\": \"22\",\r\n    \"title\": \"update post title\",\r\n    \"body\": \"Every great coder knows that a cup of coffee fuels productivity. Here’s how to brew the perfect cup!\"\r\n}"
+				},
+				"url": {
+					"raw": "{{Baseurl}}/posts/{{postId}}",
+					"host": [
+						"{{Baseurl}}"
+					],
+					"path": [
+						"posts",
+						"{{postId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "delet with INvalid id",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Verify status code is 404 Not Found\r",
+							"pm.test(\"Status code is 404\", function() {\r",
+							"    pm.response.to.have.status(404);\r",
+							"});\r",
+							"\r",
+							"// Check error response structure\r",
+							"pm.test(\"Error message is correct\", function() {\r",
+							"    const response = pm.response.json();\r",
+							"    pm.expect(response).to.be.an('object');\r",
+							"    pm.expect(response).to.have.property('message', 'Resource not found');\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"user\":\"Souad Elsayed\",\r\n    \"user_id\": \"22\",\r\n    \"title\": \"update post title\",\r\n    \"body\": \"Every great coder knows that a cup of coffee fuels productivity. Here’s how to brew the perfect cup!\"\r\n}"
+				},
+				"url": {
+					"raw": "{{Baseurl}}/posts/22",
+					"host": [
+						"{{Baseurl}}"
+					],
+					"path": [
+						"posts",
+						"22"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{vault:authorization-secret}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "postId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "last_retrieved_post",
+			"value": ""
+		},
+		{
+			"key": "userId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "title",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "user",
+			"value": "{{user}}",
+			"type": "string"
+		},
+		{
+			"key": "Userr_id",
+			"value": "{{Userr_id}}",
+			"type": "string"
+		},
+		{
+			"key": "Title_valid",
+			"value": "{{Title_valid}}",
+			"type": "string"
+		},
+		{
+			"key": "body",
+			"value": "{{body}}",
+			"type": "string"
+		},
+		{
+			"key": "invalid_id",
+			"value": "{{invalid_id}}",
+			"type": "string"
+		},
+		{
+			"key": "invalid_title",
+			"value": "{{invalid_title}}",
+			"type": "string"
+		},
+		{
+			"key": "invalid_body",
+			"value": "{{invalid_body}}",
+			"type": "string"
+		},
+		{
+			"key": "update_title",
+			"value": "{{update_title}}",
+			"type": "string"
+		}
+	]
+}
